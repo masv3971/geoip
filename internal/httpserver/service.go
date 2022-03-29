@@ -66,6 +66,8 @@ func New(ctx context.Context, cfg *model.Cfg, apiv1 *apiv1.Client, log *logger.L
 
 	s.regEndpoint(ctx, "POST", "/api/v1/login_event", s.endpointLoginEvent)
 
+	s.regEndpoint(ctx, "GET", "/api/v1/stats/overview", s.endpointStatsOverview)
+
 	// Run http server
 	go func() {
 		err := s.server.ListenAndServe()

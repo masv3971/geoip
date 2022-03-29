@@ -20,17 +20,18 @@ type Client struct {
 
 type storage interface {
 	AddLoginEvent(ctx context.Context, loginEvent *model.LoginEvent) (interface{}, error)
-	GetLatestLoginEvent(ctx context.Context, eppn string) (*model.LoginEvent, error)
+	//GetLatestLoginEvent(ctx context.Context, eppn string) (*model.LoginEvent, error)
+	GetLoginEvents(ctx context.Context, eppn string) (model.LoginEvents, error)
+	GetLoginEventsAll(ctx context.Context) (map[string]model.LoginEvents, error)
 }
 
 // New creates a new instance of apiv1
-func New(ctx context.Context, cfg *model.Cfg, maxmind *maxmind.Service, store *store.Service, traveler *traveler.Client, log *logger.Logger) (*Client, error) {
+func New(ctx context.Context, cfg *model.Cfg, maxmind *maxmind.Service, store *store.Service, log *logger.Logger) (*Client, error) {
 	c := &Client{
-		config:   cfg,
-		logger:   log,
-		maxmind:  maxmind,
-		store:    store.Doc,
-		traveler: traveler,
+		config:  cfg,
+		logger:  log,
+		maxmind: maxmind,
+		store:   store.Doc,
 	}
 
 	return c, nil

@@ -25,6 +25,7 @@ type Doc struct {
 	logineventsCollection *mongo.Collection
 	deviceIDCollection    *mongo.Collection
 	mailMsgCollection     *mongo.Collection
+	userAgentCollection   *mongo.Collection
 }
 
 // KV redis storage object
@@ -73,7 +74,7 @@ func (s *Service) newDoc(ctx context.Context) error {
 	}
 
 	s.Doc.logineventsCollection = s.Doc.Mongo.Database("eduid_geoip").Collection("loginevents")
-	s.Doc.mailMsgCollection = s.Doc.Mongo.Database("eduid_mail").Collection("xxx")
+	s.Doc.userAgentCollection = s.Doc.Mongo.Database("eduid_geoip").Collection("useragents")
 
 	if err := s.Doc.createLoginEventsIndexes(ctx); err != nil {
 		return err

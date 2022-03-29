@@ -25,10 +25,10 @@ func TestAddLoginEvent(t *testing.T) {
 	ctx := context.TODO()
 
 	loginEvent := &model.LoginEvent{
-		TimeStamp: time.Now(),
-		Eppn:      mockEppn,
+		Timestamp: time.Now(),
+		EppnHashed:      mockEppn,
 		IP:        &model.IP{},
-		DeviceID:  mockDeviceID,
+		DeviceIDHashed:  mockDeviceID,
 	}
 
 	loginEventResp, err := s.Doc.AddLoginEvent(ctx, loginEvent)
@@ -45,7 +45,7 @@ func TestGetLoginEvents(t *testing.T) {
 	s := mockNew(t)
 	ctx := context.TODO()
 
-	loginEvent, err := s.Doc.GetLoginEvents(ctx, mockEppn, mockDeviceID)
+	loginEvent, err := s.Doc.GetLoginEvents(ctx, mockEppn)
 	assert.NoError(t, err)
 	fmt.Println("loginEvent", loginEvent)
 }
@@ -83,12 +83,12 @@ func TestGetLatestLoginEvent(t *testing.T) {
 	ctx := context.TODO()
 
 	loginEvent1 := &model.LoginEvent{
-		Eppn: mockEppn,
+		EppnHashed: mockEppn,
 	}
 	loginEvent1.UserAgent.Browser.Family = "BlackBerry9700"
 
 	loginEvent2 := &model.LoginEvent{
-		Eppn: mockEppn,
+		EppnHashed: mockEppn,
 	}
 	loginEvent2.UserAgent.Browser.Family = "Mozilla"
 
@@ -120,20 +120,8 @@ func TestLoginEvents(t *testing.T) {
 		loginEvent *model.LoginEvent
 	}{
 		{
-			name: "OK",
-			loginEvent: &model.LoginEvent{
-				Eppn:      mockEppn,
-				TimeStamp: time.Now(),
-				IP: &model.IP{
-					IPAddr:  "172.0.0.1",
-					Country: "Sweden",
-					City:    "Lidköping",
-					Coordinates: &model.Coordinates{
-						Latitude:  0,
-						Longitude: 0,
-					},
-				},
-			},
+			name:       "OK",
+			loginEvent: model.MockLoginEvent(model.MockConfig{Suffix: "a"}),
 		},
 	}
 

@@ -4,8 +4,10 @@
         "ASNDB",
         "bson",
         "bsonx",
+        "deviceid",
         "dgman",
         "Dgraph",
+        "dtree",
         "eduid",
         "eppn",
         "geoip",
@@ -13,12 +15,20 @@
         "hsin",
         "indata",
         "lidköping",
+        "masv",
         "maxmind",
         "mitchellh",
         "mmdb",
+        "mura",
         "oschwald",
+        "Pnet",
+        "Skövde",
         "stretchr",
         "sunet",
-        "uids"
+        "Tele",
+        "tkanos",
+        "UAOS",
+        "uids",
+        "VPNML"
     ]
 }

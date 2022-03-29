@@ -5,17 +5,15 @@ import (
 	"geoip/pkg/model"
 	"net"
 	"time"
-
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // RequestLoginEvent type
 type RequestLoginEvent struct {
 	Data struct {
-		Eppn      string           `json:"eppn" validate:"required"`
-		ClientIP  net.IP           `json:"client_ip" validate:"required"`
-		DeviceID  string           `json:"device_id" validate:"required"`
-		UserAgent *model.UserAgent `json:"user_agent"`
+		EppnHashed string           `json:"eppn_hashed" validate:"required"`
+		ClientIP   net.IP           `json:"client_ip" validate:"required"`
+		DeviceID   string           `json:"device_id" validate:"required"`
+		UserAgent  *model.UserAgent `json:"user_agent"`
 	} `json:"data" validate:"required"`
 }
 
@@ -30,6 +28,7 @@ func (c *Client) HandlerLoginEvent(ctx context.Context, indata *RequestLoginEven
 		enterpriseISP         *model.ISP
 		enterpriseAnonymousIP *model.AnonymousIP
 	)
+
 	city, err := c.maxmind.City(indata.Data.ClientIP)
 	if err != nil {
 		return nil, err
@@ -65,29 +64,25 @@ func (c *Client) HandlerLoginEvent(ctx context.Context, indata *RequestLoginEven
 		}
 	}
 
-	loginEventLatest, err := c.store.GetLatestLoginEvent(ctx, indata.Data.Eppn)
-	if err != nil {
-		if err != mongo.ErrNoDocuments {
-			return nil, err
-		}
-	}
-
-	travel, err := c.traveler.Travel(ctx, city.Location.Latitude, city.Location.Longitude, loginEventLatest)
-	if err != nil {
-		return nil, err
-	}
+	//loginEventsPrevious, err := c.store.GetLoginEvents(ctx, indata.Data.Eppn)
+	//if err != nil {
+	//	if err != mongo.ErrNoDocuments {
+	//		return nil, err
+	//	}
+	//}
 
 	loginEventCurrent := &model.LoginEvent{
-		Eppn:      indata.Data.Eppn,
-		TimeStamp: time.Now(),
+		EppnHashed:     indata.Data.EppnHashed,
+		DeviceIDHashed: indata.Data.DeviceID,
+		Timestamp:      time.Now(),
+		Location: &model.Location{
+			Coordinates: &model.Coordinates{Latitude: city.Location.Latitude, Longitude: city.Location.Longitude},
+			City:        city.City.Names["en"],
+			Country:     city.Country.Names["en"],
+			Continent:   city.Continent.Names["en"],
+		},
 		IP: &model.IP{
-			IPAddr:  indata.Data.ClientIP.String(),
-			Country: city.Country.Names["en"],
-			City:    city.City.Names["en"],
-			Coordinates: &model.Coordinates{
-				Latitude:  city.Location.Latitude,
-				Longitude: city.Location.Longitude,
-			},
+			IPAddr: indata.Data.ClientIP.String(),
 			ASN: &model.ASN{
 				Number:       asn.AutonomousSystemNumber,
 				Organization: asn.AutonomousSystemOrganization,
@@ -95,24 +90,62 @@ func (c *Client) HandlerLoginEvent(ctx context.Context, indata *RequestLoginEven
 			ISP:         enterpriseISP,
 			AnonymousIP: enterpriseAnonymousIP,
 		},
-		Travel:    travel,
 		UserAgent: indata.Data.UserAgent,
+	}
+
+	if err := loginEventCurrent.Parse2ML(); err != nil {
+		return nil, err
 	}
 
 	if err := loginEventCurrent.AddHash(); err != nil {
 		return nil, err
 	}
 
+	//tr, err := tribunal.New(ctx)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	//phisheness, err := tr.Resolve(ctx, loginEventCurrent, loginEventsPrevious)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	//loginEventCurrent.Phisheness = phisheness
+
 	if _, err := c.store.AddLoginEvent(ctx, loginEventCurrent); err != nil {
 		return nil, err
 	}
 
-	// decide if the login is reliable
-	if loginEventLatest.Hash == loginEventCurrent.Hash{
-		
+	return &ReplyLoginEvent{Status: true}, nil
+}
+
+// RequestStatsOverview reply type
+type RequestStatsOverview struct{}
+
+// ReplyStatsOverview reply type for HandlerStatsCollection
+type ReplyStatsOverview struct {
+	model.StatsDocuments `json:"stats_documents"`
+}
+
+// HandlerStatsOverview handler for stats collection
+func (c *Client) HandlerStatsOverview(ctx context.Context, indata *RequestStatsOverview) (*ReplyStatsOverview, error) {
+	all, err := c.store.GetLoginEventsAll(ctx)
+	if err != nil {
+		return nil, err
 	}
 
+	statsDocuments := model.StatsDocuments{}
 
+	for eppn, v := range all {
+		statsDocuments = append(statsDocuments, model.StatsDocument{
+			EPPNHashed:           eppn,
+			NumbnerOfLoginEvents: len(v),
+			Countries:            v.CountriesStat(),
+		})
+	}
 
-	return &ReplyLoginEvent{Status: true}, nil
+	return &ReplyStatsOverview{
+		StatsDocuments: statsDocuments,
+	}, nil
 }

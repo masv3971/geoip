@@ -5,8 +5,8 @@ import (
 	"geoip/internal/apiv1"
 	"geoip/internal/httpserver"
 	"geoip/internal/maxmind"
+	"geoip/internal/rules"
 	"geoip/internal/store"
-	"geoip/internal/traveler"
 	"geoip/pkg/configuration"
 	"geoip/pkg/logger"
 	"geoip/pkg/model"
@@ -45,18 +45,18 @@ func main() {
 		panic(err)
 	}
 
+	_, err = rules.New(cfg, log.New("rules"))
+	if err != nil {
+		panic(err)
+	}
+
 	maxmind, err := maxmind.New(ctx, cfg, storage, log.New("maxmind"))
 	if err != nil {
 		panic(err)
 	}
 	services["maxmind"] = maxmind
 
-	traveler, err := traveler.New(ctx)
-	if err != nil {
-		panic(err)
-	}
-
-	apiv1, err := apiv1.New(ctx, cfg, maxmind, storage, traveler, log.New("apiv1"))
+	apiv1, err := apiv1.New(ctx, cfg, maxmind, storage, log.New("apiv1"))
 	if err != nil {
 		panic(err)
 	}

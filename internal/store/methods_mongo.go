@@ -43,22 +43,21 @@ func (s *Doc) AddLoginEvent(ctx context.Context, loginEvent *model.LoginEvent) (
 }
 
 // GetLoginEvents return all loginEvents for eppn and/or deviceID, or error
-func (s *Doc) GetLoginEvents(ctx context.Context, eppn, deviceID string) ([]*model.LoginEvent, error) {
+func (s *Doc) GetLoginEvents(ctx context.Context, eppn string) (model.LoginEvents, error) {
 	filter := bson.M{
-		"eppn":      eppn,
-		"device_id": deviceID,
+		"eppn": eppn,
 	}
 
-	loginEvents := []*model.LoginEvent{}
+	loginEvents := model.LoginEvents{}
 
 	curser, err := s.logineventsCollection.Find(ctx, filter, &options.FindOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	loginEvent := &model.LoginEvent{}
 	defer curser.Close(ctx)
 	for curser.Next(ctx) {
+		loginEvent := &model.LoginEvent{}
 		if err := curser.Decode(loginEvent); err != nil {
 			return nil, err
 		}
@@ -66,6 +65,29 @@ func (s *Doc) GetLoginEvents(ctx context.Context, eppn, deviceID string) ([]*mod
 	}
 
 	return loginEvents, nil
+}
+
+func (s *Doc) GetLoginEventsAll(ctx context.Context) (map[string]model.LoginEvents, error) {
+	filter := bson.M{}
+	loginEvents := map[string]model.LoginEvents{}
+
+	curser, err := s.logineventsCollection.Find(ctx, filter, &options.FindOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	loginEvent := &model.LoginEvent{}
+
+	defer curser.Close(ctx)
+	for curser.Next(ctx) {
+		if err := curser.Decode(loginEvent); err != nil {
+			return nil, err
+		}
+		loginEvents[loginEvent.EppnHashed] = append(loginEvents[loginEvent.EppnHashed], loginEvent)
+	}
+
+	return loginEvents, nil
+
 }
 
 //GetLatestLoginEvent return the latest loginEvent associated with user, else return error

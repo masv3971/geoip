@@ -7,6 +7,9 @@ type Cfg struct {
 	APIServer  struct {
 		Addr string `yaml:"addr"`
 	} `yaml:"api_server"`
+	Rules struct {
+		Folder string `yaml:"folder"`
+	} `yaml:"rules"`
 	MaxMind struct {
 		UpdatePeriodicity time.Duration `yaml:"update_periodicity"`
 		LicenseKey        string        `yaml:"license_key"`

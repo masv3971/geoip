@@ -8,8 +8,8 @@ import (
 )
 
 // Travel tries to travel really fast, if the duration is greater than 930km/h it's too fast to be possible
-func (c *Client) Travel(ctx context.Context, latNow, longNow float64, loginEvent *model.LoginEvent) (*model.Travel, error) {
-	if loginEvent == nil {
+func (c *Client) Travel(ctx context.Context, previous, current *model.LoginEvent) (*model.Travel, error) {
+	if previous == nil || current == nil {
 		return nil, nil
 	}
 	hsin := func(theta float64) float64 {
@@ -17,18 +17,18 @@ func (c *Client) Travel(ctx context.Context, latNow, longNow float64, loginEvent
 	}
 
 	// Convert to from degree to rand
-	latNow = latNow * math.Pi / 180
-	longNow = longNow * math.Pi / 180
-	latLatest := loginEvent.IP.Coordinates.Latitude * math.Pi / 180
-	longLatest := loginEvent.IP.Coordinates.Longitude * math.Pi / 180
+	latCurrent := current.Location.Coordinates.Latitude * math.Pi / 180
+	longCurrent := current.Location.Coordinates.Longitude * math.Pi / 180
+	latLatest := previous.Location.Coordinates.Latitude * math.Pi / 180
+	longLatest := previous.Location.Coordinates.Longitude * math.Pi / 180
 
 	earthRadius := float64(6378100) //meters
 
-	h := hsin(latLatest-latNow) + math.Cos(latNow)*math.Cos(latLatest)*hsin(longLatest-longNow)
+	h := hsin(latLatest-latCurrent) + math.Cos(latCurrent)*math.Cos(latLatest)*hsin(longLatest-longCurrent)
 
 	distance := 2 * earthRadius * math.Asin(math.Sqrt(h))
 
-	travelDuration := time.Now().Sub(loginEvent.TimeStamp)
+	travelDuration := time.Now().Sub(previous.Timestamp)
 
 	fastAirplane := 258.333333 // meter/second
 
