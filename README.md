@@ -51,7 +51,7 @@
 
 ### GET /stats/overview
 #### Reply
-```json
+```
 {
 	"data": {
 		"overview": [
@@ -77,7 +77,7 @@
 
 ### GET /stats/eppn/{eppn}/long
 #### Reply
-```json
+```
 {
 	"data": {
 		"LoginEvents": [
@@ -168,7 +168,7 @@
 
 ### GET /stats/eppn/{eppn}/specific
 #### Reply
-```json
+```
 {
 	"data": {
 		"StatsData": {
