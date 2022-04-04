@@ -3,7 +3,7 @@
 ## API
 ### POST /login_event
 #### Request
-```json
+```
 	"data": {
 		"eppn_hashed": <string>,
 		"client_ip": <string>,
