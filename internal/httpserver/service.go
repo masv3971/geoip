@@ -57,7 +57,6 @@ func New(ctx context.Context, cfg *model.Cfg, apiv1 *apiv1.Client, log *logger.L
 	s.gin.Use(s.middlewareDuration(ctx))
 	s.gin.Use(s.middlewareLogger(ctx))
 	s.gin.Use(s.middlewareCrash(ctx))
-	s.gin.Use(s.middlewareSolidContentType(ctx))
 	s.gin.NoRoute(func(c *gin.Context) {
 		status := http.StatusNotFound
 		p := helpers.Problem404()
@@ -67,6 +66,8 @@ func New(ctx context.Context, cfg *model.Cfg, apiv1 *apiv1.Client, log *logger.L
 	s.regEndpoint(ctx, "POST", "/api/v1/login_event", s.endpointLoginEvent)
 
 	s.regEndpoint(ctx, "GET", "/api/v1/stats/overview", s.endpointStatsOverview)
+	s.regEndpoint(ctx, "GET", "/api/v1/stats/eppn/:eppn/long", s.endpointStatsEppnLong)
+	s.regEndpoint(ctx, "GET", "/api/v1/stats/eppn/:eppn/specific", s.endpointStatsEppnSpecific)
 
 	// Run http server
 	go func() {

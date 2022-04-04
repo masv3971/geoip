@@ -28,14 +28,15 @@ func (c *Client) Travel(ctx context.Context, previous, current *model.LoginEvent
 
 	distance := 2 * earthRadius * math.Asin(math.Sqrt(h))
 
-	travelDuration := time.Now().Sub(previous.Timestamp)
+	//travelDuration := time.Now().Sub(previous.Timestamp)
+	travelDuration := current.Timestamp.Sub(previous.Timestamp)
 
-	fastAirplane := 258.333333 // meter/second
+	airplaneSpeed := 246.933333 // meter/second
 
 	travelSpeed := distance / travelDuration.Seconds()
 
 	impssibleTravel := false
-	if travelSpeed > fastAirplane {
+	if travelSpeed > airplaneSpeed {
 		impssibleTravel = true
 	}
 

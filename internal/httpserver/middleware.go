@@ -3,7 +3,6 @@ package httpserver
 import (
 	"context"
 	"geoip/pkg/helpers"
-	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -24,24 +23,6 @@ func (s *Service) middlewareTraceID(ctx context.Context) gin.HandlerFunc {
 		c.Set("sunet-request-id", uuid.NewString())
 		c.Header("sunet-request-id", c.GetString("sunet-request-id"))
 		c.Next()
-	}
-}
-
-func (s *Service) middlewareSolidContentType(ctx context.Context) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		switch c.Request.Method {
-		case http.MethodHead:
-			c.Next()
-		case http.MethodGet:
-			c.Next()
-		default:
-			if c.Request.Method != http.MethodGet {
-				if c.ContentType() == "" {
-					renderContent(c, 400, gin.H{"message": "The given input is not supported by the server configuration."})
-				}
-			}
-			c.Next()
-		}
 	}
 }
 

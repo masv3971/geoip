@@ -2,8 +2,10 @@ package apiv1
 
 import (
 	"context"
+	"geoip/internal/statistics"
 	"geoip/pkg/model"
 	"net"
+	"sort"
 	"time"
 )
 
@@ -64,13 +66,6 @@ func (c *Client) HandlerLoginEvent(ctx context.Context, indata *RequestLoginEven
 		}
 	}
 
-	//loginEventsPrevious, err := c.store.GetLoginEvents(ctx, indata.Data.Eppn)
-	//if err != nil {
-	//	if err != mongo.ErrNoDocuments {
-	//		return nil, err
-	//	}
-	//}
-
 	loginEventCurrent := &model.LoginEvent{
 		EppnHashed:     indata.Data.EppnHashed,
 		DeviceIDHashed: indata.Data.DeviceID,
@@ -101,18 +96,6 @@ func (c *Client) HandlerLoginEvent(ctx context.Context, indata *RequestLoginEven
 		return nil, err
 	}
 
-	//tr, err := tribunal.New(ctx)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//phisheness, err := tr.Resolve(ctx, loginEventCurrent, loginEventsPrevious)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//loginEventCurrent.Phisheness = phisheness
-
 	if _, err := c.store.AddLoginEvent(ctx, loginEventCurrent); err != nil {
 		return nil, err
 	}
@@ -125,7 +108,7 @@ type RequestStatsOverview struct{}
 
 // ReplyStatsOverview reply type for HandlerStatsCollection
 type ReplyStatsOverview struct {
-	model.StatsDocuments `json:"stats_documents"`
+	model.StatsOverviewDocs `json:"overview"`
 }
 
 // HandlerStatsOverview handler for stats collection
@@ -135,17 +118,67 @@ func (c *Client) HandlerStatsOverview(ctx context.Context, indata *RequestStatsO
 		return nil, err
 	}
 
-	statsDocuments := model.StatsDocuments{}
+	statsDocuments := model.StatsOverviewDocs{}
 
-	for eppn, v := range all {
-		statsDocuments = append(statsDocuments, model.StatsDocument{
-			EPPNHashed:           eppn,
-			NumbnerOfLoginEvents: len(v),
-			Countries:            v.CountriesStat(),
+	for eppn, loginEvents := range all {
+		statsDocuments = append(statsDocuments, model.StatsOverviewDoc{
+			EPPNHashed:              eppn,
+			NumbnerOfLoginEvents:    len(loginEvents),
+			NumberOfCountries:       loginEvents.NumberOfCountries(),
+			NumberOfUniqueCountries: loginEvents.NumberOfUniqueCountries(),
+			NumberOfIPs:             loginEvents.NumberOfIPs(),
+			NumberOfUniqueIPs:       loginEvents.NumberOfUniqueIPs(),
 		})
 	}
 
+	sort.Sort(model.StatsOverviewDocsSortByOccurrences(statsDocuments))
+
 	return &ReplyStatsOverview{
-		StatsDocuments: statsDocuments,
+		StatsOverviewDocs: statsDocuments,
 	}, nil
+}
+
+// RequestStatsEppnLong input type
+type RequestStatsEppnLong struct {
+	EppnHashed string `uri:"eppn"`
+}
+
+// ReplyStatsEppnLong output type
+type ReplyStatsEppnLong struct {
+	model.LoginEvents
+}
+
+// HandlerStatsEppnLong return loginEvent for a Eppn
+func (c *Client) HandlerStatsEppnLong(ctx context.Context, indata *RequestStatsEppnLong) (*ReplyStatsEppnLong, error) {
+	loginEvents, err := c.store.GetLoginEvents(ctx, indata.EppnHashed)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ReplyStatsEppnLong{loginEvents}, nil
+}
+
+// RequestStatsEppnSpecific input type
+type RequestStatsEppnSpecific struct {
+	EppnHashed string `uri:"eppn"`
+}
+
+// ReplyStatsEppnSpecific output type
+type ReplyStatsEppnSpecific struct {
+	statistics.StatsData
+}
+
+// HandlerStatsEppnSpecific return summery for one eppn
+func (c *Client) HandlerStatsEppnSpecific(ctx context.Context, indata *RequestStatsEppnSpecific) (*ReplyStatsEppnSpecific, error) {
+	loginEvents, err := c.store.GetLoginEvents(ctx, indata.EppnHashed)
+	if err != nil {
+		return nil, err
+	}
+
+	sData, err := statistics.NewSpecific(loginEvents)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ReplyStatsEppnSpecific{sData}, nil
 }

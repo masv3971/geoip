@@ -22,7 +22,7 @@ type Service struct {
 type Doc struct {
 	Mongo                 *mongo.Client
 	usersCollection       *mongo.Collection
-	logineventsCollection *mongo.Collection
+	loginEventsCollection *mongo.Collection
 	deviceIDCollection    *mongo.Collection
 	mailMsgCollection     *mongo.Collection
 	userAgentCollection   *mongo.Collection
@@ -73,7 +73,7 @@ func (s *Service) newDoc(ctx context.Context) error {
 		Mongo: client,
 	}
 
-	s.Doc.logineventsCollection = s.Doc.Mongo.Database("eduid_geoip").Collection("loginevents")
+	s.Doc.loginEventsCollection = s.Doc.Mongo.Database("eduid_geoip").Collection("loginevents")
 	s.Doc.userAgentCollection = s.Doc.Mongo.Database("eduid_geoip").Collection("useragents")
 
 	if err := s.Doc.createLoginEventsIndexes(ctx); err != nil {

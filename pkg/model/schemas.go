@@ -143,25 +143,9 @@ func (l *LoginEvent) AddHash() error {
 	return nil
 }
 
-// SortByTimestamp implements sort.Interface based on Timestamp field
-type SortByTimestamp LoginEvents
-
-// Len sort timestamp
-func (s SortByTimestamp) Len() int { return len(s) }
-
-// Less sort timestamp
-func (s SortByTimestamp) Less(i, j int) bool {
-	return s[i].Timestamp.After(s[j].Timestamp)
-}
-
-// Swap sorts timestamp
-func (s SortByTimestamp) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-
 // GetLatest return the most recent loginEvent from LoginEvents
 func (loginEvents LoginEvents) GetLatest() *LoginEvent {
-	sort.Sort(SortByTimestamp(loginEvents))
+	sort.Sort(LoginEventsSortByTimestamp(loginEvents))
 	return loginEvents[0]
 }
 
@@ -176,11 +160,28 @@ type Travel struct {
 	IsTravelImpossible bool          `json:"is_travel_impossible" bson:"is_travel_impossible" hash:"-"`
 }
 
-// StatsDocument holds the document for stats endpoint
-type StatsDocument struct {
-	EPPNHashed           string         `json:"eppn_hashed"`
-	NumbnerOfLoginEvents int            `json:"number_of_login_events"`
-	Countries            map[string]int `json:"countries"`
+// StatsOverviewDoc holds the document for stats endpoint
+type StatsOverviewDoc struct {
+	EPPNHashed              string `json:"eppn_hashed"`
+	NumbnerOfLoginEvents    int    `json:"number_of_login_events"`
+	NumberOfCountries       int    `json:"number_of_countries"`
+	NumberOfUniqueCountries int    `json:"number_of_unique_countries"`
+	NumberOfIPs             int    `json:"number_of_ips"`
+	NumberOfUniqueIPs       int    `json:"number_of_unique_ips"`
 }
 
-type StatsDocuments []StatsDocument
+type StatsOverviewDocs []StatsOverviewDoc
+
+// StatsData hold statsData
+type StatsData struct {
+	Len               int     `json:"number_of_elements"`
+	Entropy           float64 `json:"entropy"`
+	StandardDeviation float64 `json:"standardDeviation"`
+}
+
+// StatsSpecificDoc holds data for specific datapoints for a eppn
+type StatsSpecificDoc struct {
+	IP        StatsData `json:"ip"`
+	UserAgent StatsData `json:"user_agent"`
+	Country   StatsData `json:"country"`
+}

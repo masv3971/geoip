@@ -21,9 +21,9 @@ countries:
 
 func mockClient(t *testing.T) *Client {
 	tempDir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(tempDir, "contries.yaml"), mockContries, fs.FileMode(os.O_RDWR)); err != nil {
-		t.Fatal(err)
-	}
+
+	err := os.WriteFile(filepath.Join(tempDir, "countries.yaml"), mockContries, fs.FileMode(os.O_RDWR))
+	assert.NoError(t, err)
 
 	cfg := &model.Cfg{
 		Rules: struct {

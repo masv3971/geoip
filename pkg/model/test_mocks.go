@@ -2,11 +2,12 @@ package model
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
 func mockLocation(country string) *Coordinates {
-	switch country {
+	switch strings.ToLower(country) {
 	case "sweden":
 		return &Coordinates{
 			Latitude:  57.648,
@@ -14,8 +15,8 @@ func mockLocation(country string) *Coordinates {
 		}
 	case "usa":
 		return &Coordinates{
-			Latitude:  59.3274,
-			Longitude: 18.0653,
+			Latitude:  44.500000,
+			Longitude: -89.500000,
 		}
 	default:
 		return nil
@@ -29,7 +30,7 @@ type MockConfig struct {
 	ASN                                                            uint
 }
 
-func (c MockConfig) defaultConfig() {
+func (c *MockConfig) defaultConfig() {
 	if c.Hash == "" {
 		c.Hash = "h_abc"
 	}
@@ -59,14 +60,24 @@ func (c MockConfig) defaultConfig() {
 	}
 }
 
+func (c *MockConfig) toLower() {
+	c.Hash = strings.ToLower(c.Hash)
+	c.DeviceID = strings.ToLower(c.DeviceID)
+	c.IP = strings.ToLower(c.IP)
+	c.UABrowser = strings.ToLower(c.UABrowser)
+	c.UADevice = strings.ToLower(c.UADevice)
+	c.UAOS = strings.ToLower(c.UAOS)
+}
+
 // MockLoginEvent mocks loginEvent with a sane default
 func MockLoginEvent(c MockConfig) *LoginEvent {
 	c.defaultConfig()
+	c.toLower()
 
 	le := &LoginEvent{
-		ID:       fmt.Sprintf("id_%s", c.Suffix),
+		ID:             fmt.Sprintf("id_%s", c.Suffix),
 		EppnHashed:     fmt.Sprintf("eppn_%s", c.Suffix),
-		Hash:     c.Hash,
+		Hash:           c.Hash,
 		DeviceIDHashed: c.DeviceID,
 		Location: &Location{
 			Country:     c.Country,
@@ -74,11 +85,11 @@ func MockLoginEvent(c MockConfig) *LoginEvent {
 		},
 		Timestamp: time.Date(2022, 2, 23, c.H, c.M, c.S, 0, time.UTC),
 		IP: &IP{
-			IPAddr: c.IP,
-			ASN: &ASN{
-				Number:       c.ASN,
-				Organization: "",
-			},
+			IPAddr:      c.IP,
+			IPAddrML:    "",
+			ASN:         &ASN{Number: c.ASN, Organization: ""},
+			ISP:         &ISP{},
+			AnonymousIP: &AnonymousIP{},
 		},
 		UserAgent: &UserAgent{
 			Browser:       UserAgentSoftware{Family: c.UABrowser},
@@ -89,6 +100,7 @@ func MockLoginEvent(c MockConfig) *LoginEvent {
 		LoginMethod:   "",
 		Fraudulent:    false,
 		FraudulentInt: 0,
+		Phisheness:    &Phisheness{},
 	}
 
 	return le

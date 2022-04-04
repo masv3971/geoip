@@ -28,7 +28,7 @@ func TestRun(t *testing.T) {
 				Current:  nil,
 				data: []data{
 					{
-						reason: "NotNoPrevious",
+						reason: "NotKnownPrevious",
 						value:  0,
 					},
 				},
@@ -48,7 +48,7 @@ func TestRun(t *testing.T) {
 				Current:  nil,
 				data: []data{
 					{
-						reason: "NotNoPrevious",
+						reason: "KnownPrevious",
 						value:  0,
 					},
 					{
@@ -72,37 +72,7 @@ func TestRun(t *testing.T) {
 				Current:  nil,
 				data: []data{
 					{
-						reason: "NotNoPrevious",
-						value:  0,
-					},
-					{
-						reason: "NotKnownHash",
-						value:  100,
-					},
-					{
-						reason: "NotKnownDeviceID",
-						value:  0,
-					},
-				},
-				result: 100,
-			},
-		},
-		{
-			name: "knownIP",
-			have: have{
-				previous: model.LoginEvents{
-					model.MockLoginEvent(model.MockConfig{Suffix: "first", H: 12}),
-					model.MockLoginEvent(model.MockConfig{Suffix: "second", H: 13}),
-					model.MockLoginEvent(model.MockConfig{Suffix: "latest", H: 16, IP: "192.168.1.1"}),
-				},
-				current: model.MockLoginEvent(model.MockConfig{Suffix: "latest", H: 17, IP: "192.168.1.1"}),
-			},
-			want: &Set{
-				Previous: nil,
-				Current:  nil,
-				data: []data{
-					{
-						reason: "NotNoPrevious",
+						reason: "KnownPrevious",
 						value:  0,
 					},
 					{
@@ -117,8 +87,58 @@ func TestRun(t *testing.T) {
 						reason: "KnownIP",
 						value:  0,
 					},
+					{
+						reason: "KnownCountry",
+						value:  0,
+					},
+					{
+						reason: "UserAgent",
+						value:  50,
+					},
 				},
-				result: 200,
+				result: 250,
+			},
+		},
+		{
+			name: "knownIP",
+			have: have{
+				previous: model.LoginEvents{
+					model.MockLoginEvent(model.MockConfig{Suffix: "first", H: 12}),
+					model.MockLoginEvent(model.MockConfig{Suffix: "second", H: 13}),
+					model.MockLoginEvent(model.MockConfig{Suffix: "latest", H: 16, IP: "192.168.1.1"}),
+				},
+				current: model.MockLoginEvent(model.MockConfig{Suffix: "latest", Hash: "h_other", DeviceID: "d_other", H: 17, IP: "192.168.1.1"}),
+			},
+			want: &Set{
+				Previous: nil,
+				Current:  nil,
+				data: []data{
+					{
+						reason: "KnownPrevious",
+						value:  0,
+					},
+					{
+						reason: "NotKnownHash",
+						value:  100,
+					},
+					{
+						reason: "NotKnownDeviceID",
+						value:  100,
+					},
+					{
+						reason: "KnownIP",
+						value:  0,
+					},
+					{
+						reason: "KnownCountry",
+						value:  0,
+					},
+					{
+						reason: "UserAgent",
+						value:  50,
+					},
+				},
+				result: 250,
 			},
 		},
 	}

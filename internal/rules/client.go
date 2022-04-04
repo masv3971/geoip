@@ -32,23 +32,21 @@ func New(cfg *model.Cfg, log *logger.Logger) (*Client, error) {
 }
 
 func (c *Client) loadRules() error {
-	err := filepath.Walk("rules",
-		func(path string, info fs.FileInfo, err error) error {
-			if filepath.Ext(info.Name()) != "yaml" {
-				return nil
-			}
-			if err != nil {
-				return err
-			}
-			fileData, err := os.ReadFile(path)
-			if err != nil {
-				return err
-			}
-			c.rules = &model.Rules{}
-			yaml.Unmarshal(fileData, c.rules)
+	err := filepath.Walk(c.cfg.Rules.Folder, func(path string, info fs.FileInfo, err error) error {
+		if filepath.Ext(info.Name()) != "yaml" {
 			return nil
-		})
-
+		}
+		if err != nil {
+			return err
+		}
+		fileData, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		c.rules = &model.Rules{}
+		yaml.Unmarshal(fileData, c.rules)
+		return nil
+	})
 	if err != nil {
 		return err
 	}

@@ -26,7 +26,7 @@ func TestTravel(t *testing.T) {
 		{
 			name: "zero distance",
 			have: have{
-				current:  model.MockLoginEvent(model.MockConfig{Country: "sweden"}),
+				current:  model.MockLoginEvent(model.MockConfig{Country: "sweden", H: 14}),
 				previous: model.MockLoginEvent(model.MockConfig{Country: "sweden"}),
 			},
 			want: &model.Travel{
@@ -42,15 +42,15 @@ func TestTravel(t *testing.T) {
 		{
 			name: "stockholm->USA",
 			have: have{
-				current:  model.MockLoginEvent(model.MockConfig{Country: "sweden"}),
-				previous: model.MockLoginEvent(model.MockConfig{Country: "usa"}),
+				current:  model.MockLoginEvent(model.MockConfig{Country: "sweden", H: 17}),
+				previous: model.MockLoginEvent(model.MockConfig{Country: "usa", H: 12}),
 			},
 			want: &model.Travel{
-				Distance:           7.734844247101788e+06,
+				Distance:           6.584876652588911e+06,
 				DistanceUnit:       "meter",
 				TravelDuration:     86400,
 				TravelDurationUnit: "second",
-				TravelSpeed:        89.52366009179627,
+				TravelSpeed:        365.83,
 				TravelSpeedUnit:    "meter/second",
 				IsTravelImpossible: true,
 			},
@@ -64,9 +64,9 @@ func TestTravel(t *testing.T) {
 			got, err := s.Travel(context.TODO(), tt.have.previous, tt.have.current)
 			assert.NoError(t, err)
 
-			assert.Equal(t, tt.want.Distance, got.Distance)
-			assert.Equal(t, tt.want.IsTravelImpossible, got.IsTravelImpossible)
-			assert.Equal(t, math.Round(tt.want.TravelSpeed*100)/100, math.Round(got.TravelSpeed*100)/100)
+			assert.Equal(t, tt.want.Distance, got.Distance, "distance")
+			assert.Equal(t, tt.want.IsTravelImpossible, got.IsTravelImpossible, "isTravelImpossible")
+			assert.Equal(t, math.Round(tt.want.TravelSpeed*100)/100, math.Round(got.TravelSpeed*100)/100, "travelSpeed")
 		})
 	}
 }

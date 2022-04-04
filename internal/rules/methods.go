@@ -20,11 +20,19 @@ type Set struct {
 
 // ruleNoPrevious return true if there is no previous loginEvents
 func (s *Set) ruleKnownPrevious() bool {
+	if s.Previous.IsEmpty() {
+		s.data = append(s.data, data{
+			reason: "NotKnownPrevious",
+			value:  0,
+		})
+		return false
+	}
+
 	s.data = append(s.data, data{
-		reason: "NotKnownPrevious",
+		reason: "KnownPrevious",
 		value:  0,
 	})
-	return !s.Previous.IsEmpty()
+	return true
 }
 
 func (s *Set) ruleKnownDeviceID() bool {
