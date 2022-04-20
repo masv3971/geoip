@@ -14,7 +14,7 @@ type RequestLoginEvent struct {
 	Data struct {
 		EppnHashed string           `json:"eppn_hashed" validate:"required"`
 		ClientIP   net.IP           `json:"client_ip" validate:"required"`
-		DeviceID   string           `json:"device_id" validate:"required"`
+		DeviceID   bool           `json:"device_id" validate:"required"`
 		UserAgent  *model.UserAgent `json:"user_agent"`
 	} `json:"data" validate:"required"`
 }
@@ -68,7 +68,7 @@ func (c *Client) HandlerLoginEvent(ctx context.Context, indata *RequestLoginEven
 
 	loginEventCurrent := &model.LoginEvent{
 		EppnHashed:     indata.Data.EppnHashed,
-		DeviceIDHashed: indata.Data.DeviceID,
+		KnownDevice: indata.Data.DeviceID,
 		Timestamp:      time.Now(),
 		Location: &model.Location{
 			Coordinates: &model.Coordinates{Latitude: city.Location.Latitude, Longitude: city.Location.Longitude},

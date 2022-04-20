@@ -22,7 +22,7 @@ type LoginEvent struct {
 	Timestamp      time.Time   `json:"timestamp,omitempty" hash:"-"`
 	TimestampML    int64       `json:"timestamp_ml" bson:"timestamp_ml" hash:"-"`
 	IP             *IP         `json:"ip,omitempty"`
-	DeviceIDHashed string      `json:"device_id_hashed" bson:"device_id_hashed"`
+	KnownDevice bool      `json:"device_id_hashed" bson:"device_id_hashed"`
 	UserAgent      *UserAgent  `json:"user_agent" bson:"user_agent"`
 	Phisheness     *Phisheness `json:"phishing" bson:"phishing" hash:"-"`
 	Location       *Location   `json:"location" bson:"location"`

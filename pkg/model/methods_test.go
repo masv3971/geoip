@@ -476,35 +476,35 @@ func TestNumberOfCountries(t *testing.T) {
 	}
 }
 
-func TestHasDeviceID(t *testing.T) {
-	type have struct {
-		arg         string
-		loginEvents LoginEvents
-	}
-	tts := []struct {
-		name string
-		have have
-		want bool
-	}{
-		{
-			name: "OK",
-			have: have{
-				loginEvents: LoginEvents{
-					MockLoginEvent(MockConfig{Suffix: "a", DeviceID: "test"}),
-				},
-				arg: "test",
-			},
-			want: true,
-		},
-	}
-
-	for _, tt := range tts {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.have.loginEvents.HasDeviceID(tt.have.arg)
-			assert.Equal(t, tt.want, got)
-		})
-	}
-}
+//func TestHasDeviceID(t *testing.T) {
+//	type have struct {
+//		arg         string
+//		loginEvents LoginEvents
+//	}
+//	tts := []struct {
+//		name string
+//		have have
+//		want bool
+//	}{
+//		{
+//			name: "OK",
+//			have: have{
+//				loginEvents: LoginEvents{
+//					MockLoginEvent(MockConfig{Suffix: "a", DeviceID: "test"}),
+//				},
+//				arg: "test",
+//			},
+//			want: true,
+//		},
+//	}
+//
+//	for _, tt := range tts {
+//		t.Run(tt.name, func(t *testing.T) {
+//			got := tt.have.loginEvents.HasDeviceID(tt.have.arg)
+//			assert.Equal(t, tt.want, got)
+//		})
+//	}
+//}
 
 func TestHasHash(t *testing.T) {
 	tts := []struct {
@@ -587,7 +587,7 @@ func TestParse2ML(t *testing.T) {
 					ISP:         &ISP{},
 					AnonymousIP: &AnonymousIP{},
 				},
-				DeviceIDHashed: "d_abc",
+				KnownDevice: true,
 				UserAgent: &UserAgent{
 					Browser: UserAgentSoftware{
 						Family:   "firefox",

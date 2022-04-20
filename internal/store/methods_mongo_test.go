@@ -12,7 +12,6 @@ import (
 )
 
 const (
-	mockDeviceID = "3CC9E562-4274-41B1-B959-249D8AD423E1"
 	mockEppn     = "testUser"
 )
 
@@ -28,7 +27,7 @@ func TestAddLoginEvent(t *testing.T) {
 		Timestamp: time.Now(),
 		EppnHashed:      mockEppn,
 		IP:        &model.IP{},
-		DeviceIDHashed:  mockDeviceID,
+		KnownDevice:  true,
 	}
 
 	loginEventResp, err := s.Doc.AddLoginEvent(ctx, loginEvent)

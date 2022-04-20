@@ -221,15 +221,15 @@ func (l LoginEvents) HasCountry(country string) bool {
 	return false
 }
 
-// HasDeviceID return true if deviceID is found in any of loginEvent
-func (l LoginEvents) HasDeviceID(deviceID string) bool {
-	for _, loginEvent := range l {
-		if Equal(loginEvent.DeviceIDHashed, deviceID) {
-			return true
-		}
-	}
-	return false
-}
+//// HasDeviceID return true if deviceID is found in any of loginEvent
+//func (l LoginEvents) HasDeviceID(deviceID string) bool {
+//	for _, loginEvent := range l {
+//		if Equal(loginEvent.KnownDevice, deviceID) {
+//			return true
+//		}
+//	}
+//	return false
+//}
 
 // HasHash return true if hash is found in any of loginEvents
 func (l LoginEvents) HasHash(hash string) bool {

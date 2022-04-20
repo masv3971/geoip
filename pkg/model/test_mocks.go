@@ -25,17 +25,15 @@ func mockLocation(country string) *Coordinates {
 
 // MockConfig configs MockLoginEvent
 type MockConfig struct {
-	Suffix, Hash, DeviceID, IP, Country, UABrowser, UAOS, UADevice string
-	H, M, S                                                        int
-	ASN                                                            uint
+	Suffix, Hash, IP, Country, UABrowser, UAOS, UADevice string
+	H, M, S                                              int
+	ASN                                                  uint
+	KnownDevice                                          bool
 }
 
 func (c *MockConfig) defaultConfig() {
 	if c.Hash == "" {
 		c.Hash = "h_abc"
-	}
-	if c.DeviceID == "" {
-		c.DeviceID = "d_abc"
 	}
 	if c.IP == "" {
 		c.IP = "10.0.0.1"
@@ -62,7 +60,6 @@ func (c *MockConfig) defaultConfig() {
 
 func (c *MockConfig) toLower() {
 	c.Hash = strings.ToLower(c.Hash)
-	c.DeviceID = strings.ToLower(c.DeviceID)
 	c.IP = strings.ToLower(c.IP)
 	c.UABrowser = strings.ToLower(c.UABrowser)
 	c.UADevice = strings.ToLower(c.UADevice)
@@ -75,10 +72,10 @@ func MockLoginEvent(c MockConfig) *LoginEvent {
 	c.toLower()
 
 	le := &LoginEvent{
-		ID:             fmt.Sprintf("id_%s", c.Suffix),
-		EppnHashed:     fmt.Sprintf("eppn_%s", c.Suffix),
-		Hash:           c.Hash,
-		DeviceIDHashed: c.DeviceID,
+		ID:          fmt.Sprintf("id_%s", c.Suffix),
+		EppnHashed:  fmt.Sprintf("eppn_%s", c.Suffix),
+		Hash:        c.Hash,
+		KnownDevice: c.KnownDevice,
 		Location: &Location{
 			Country:     c.Country,
 			Coordinates: mockLocation(c.Country),

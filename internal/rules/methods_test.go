@@ -63,7 +63,7 @@ func TestRun(t *testing.T) {
 			name: "NotKnownDeviceID",
 			have: have{
 				previous: model.LoginEvents{
-					model.MockLoginEvent(model.MockConfig{Suffix: "latest", Hash: "h_other", DeviceID: "d_other", H: 13}),
+					model.MockLoginEvent(model.MockConfig{Suffix: "latest", Hash: "h_other", KnownDevice: true, H: 13}),
 				},
 				current: model.MockLoginEvent(model.MockConfig{Suffix: "current", H: 14}),
 			},
@@ -107,7 +107,7 @@ func TestRun(t *testing.T) {
 					model.MockLoginEvent(model.MockConfig{Suffix: "second", H: 13}),
 					model.MockLoginEvent(model.MockConfig{Suffix: "latest", H: 16, IP: "192.168.1.1"}),
 				},
-				current: model.MockLoginEvent(model.MockConfig{Suffix: "latest", Hash: "h_other", DeviceID: "d_other", H: 17, IP: "192.168.1.1"}),
+				current: model.MockLoginEvent(model.MockConfig{Suffix: "latest", Hash: "h_other", KnownDevice: true, H: 17, IP: "192.168.1.1"}),
 			},
 			want: &Set{
 				Previous: nil,

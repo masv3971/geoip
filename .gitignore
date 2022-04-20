@@ -3,3 +3,4 @@ dev-config.yaml
 db/*
 mongo/data/*
 notes
+redis-data

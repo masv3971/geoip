@@ -35,21 +35,21 @@ func (s *Set) ruleKnownPrevious() bool {
 	return true
 }
 
-func (s *Set) ruleKnownDeviceID() bool {
-	if s.Previous.HasDeviceID(s.Current.DeviceIDHashed) {
-		s.data = append(s.data, data{
-			reason: "KnownDeviceID",
-			value:  0,
-		})
-		return true
-	}
-
-	s.data = append(s.data, data{
-		reason: "NotKnownDeviceID",
-		value:  100,
-	})
-	return false
-}
+//func (s *Set) ruleKnownDeviceID() bool {
+//	if s.Previous.HasDeviceID(s.Current.KnownDevice) {
+//		s.data = append(s.data, data{
+//			reason: "KnownDeviceID",
+//			value:  0,
+//		})
+//		return true
+//	}
+//
+//	s.data = append(s.data, data{
+//		reason: "NotKnownDeviceID",
+//		value:  100,
+//	})
+//	return false
+//}
 
 // ruleKnownHash return true and value 0 if hash is known, else 100 and false
 func (s *Set) ruleKnownHash() bool {
@@ -152,10 +152,10 @@ func (c *Client) Run(previous model.LoginEvents, current *model.LoginEvent) (*Se
 		return set, nil
 	}
 
-	if set.ruleKnownDeviceID() {
-		set.resolve()
-		return set, nil
-	}
+//	if set.ruleKnownDeviceID() {
+//		set.resolve()
+//		return set, nil
+//	}
 
 	set.ruleKnownIP()
 
